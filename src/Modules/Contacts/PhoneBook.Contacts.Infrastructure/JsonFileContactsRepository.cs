@@ -116,7 +116,7 @@ public sealed class JsonFileContactsRepository : IContactsRepository
             return Array.Empty<Contact>();
 
         var data = await JsonSerializer.DeserializeAsync<List<Contact>>(stream, JsonOptions, ct);
-        return data ?? Array.Empty<Contact>();
+        return (IReadOnlyList<Contact>)data ?? Array.Empty<Contact>();
     }
 
     private async Task WriteAllUnsafeAsync(List<Contact> contacts, CancellationToken ct)
