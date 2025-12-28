@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <ProjectReference Include="..\PhoneBook.Contacts.Domain\PhoneBook.Contacts.Domain.csproj" />
     <ProjectReference Include="..\PhoneBook.Contacts.Application\PhoneBook.Contacts.Application.csproj" />
   </ItemGroup>
 

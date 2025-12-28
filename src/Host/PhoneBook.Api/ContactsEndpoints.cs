@@ -15,7 +15,7 @@ public static class ContactsEndpoints {
                   "/",
                   async Task<Ok<IReadOnlyList<ContactDto>>> (
                       string? q,
-                      ContactsService service,
+                      [FromServices] ContactsService service,
                       CancellationToken ct) =>
                       {
                           var items = await service.GetAllAsync(q, ct);
@@ -31,7 +31,7 @@ public static class ContactsEndpoints {
                   "/{id:guid}",
                   async Task<Results<Ok<ContactDto>, NotFound>> (
                       Guid id,
-                      ContactsService service,
+                      [FromServices] ContactsService service,
                       CancellationToken ct) =>
                       {
                           var item = await service.GetByIdAsync(id, ct);
@@ -50,7 +50,7 @@ public static class ContactsEndpoints {
                   "/",
                   async Task<Results<Created<ContactDto>, BadRequest<ProblemDetails>>> (
                       CreateContactRequest request,
-                      ContactsService service,
+                      [FromServices] ContactsService service,
                       CancellationToken ct) =>
                       {
                           try {
@@ -80,7 +80,7 @@ public static class ContactsEndpoints {
                   async Task<Results<Ok<ContactDto>, NotFound, BadRequest<ProblemDetails>>> (
                       Guid id,
                       UpdateContactRequest request,
-                      ContactsService service,
+                      [FromServices] ContactsService service,
                       CancellationToken ct) =>
                       {
                           try {
@@ -110,7 +110,7 @@ public static class ContactsEndpoints {
                   "/{id:guid}",
                   async Task<Results<NoContent, NotFound>> (
                       Guid id,
-                      ContactsService service,
+                      [FromServices] ContactsService service,
                       CancellationToken ct) =>
                       {
                           var deleted = await service.DeleteAsync(id, ct);
