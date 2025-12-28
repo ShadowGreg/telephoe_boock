@@ -11,4 +11,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Contacts\PhoneBook.Contacts.Application\PhoneBook.Contacts.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Contacts\PhoneBook.Contacts.Domain\PhoneBook.Contacts.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Contacts\PhoneBook.Contacts.Infrastructure\PhoneBook.Contacts.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

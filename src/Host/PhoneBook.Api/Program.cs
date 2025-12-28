@@ -1,29 +1,48 @@
 using Microsoft.OpenApi.Models;
+using PhoneBook.Api;
 
-namespace WebApplication1;
-public class Program {
-    public static void Main(string[] args) {
-        var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllers();
+// Controllers
+builder.Services.AddControllers();
 
-        // Swagger
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-            });
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+    {
+        options.SwaggerDoc("v1", new OpenApiInfo
+                                 {
+                                     Title = "My API",
+                                     Version = "v1",
+                                     Description = "PhoneBook Modular Monolith API",
+                                     Contact = new OpenApiContact
+                                               {
+                                                   Name = "Your Name",
+                                                   Email = "you@example.com"
+                                               }
+                                 });
 
-        var app = builder.Build();
+        // если будут XML-комментарии
+        // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        // var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        // options.IncludeXmlComments(xmlPath);
+    });
 
-        if (app.Environment.IsDevelopment()) {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+var app = builder.Build();
 
-        app.UseHttpsRedirection();
-        app.MapControllers();
-
-        app.Run();
-    }
+// HTTP pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+            options.RoutePrefix = "swagger"; // /swagger
+        });
 }
+app.MapContactsModule();
+
+
+app.MapControllers();
+
+app.Run();
