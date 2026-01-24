@@ -2,8 +2,12 @@ using Microsoft.OpenApi.Models;
 using PhoneBook.Api;
 using PhoneBook.Contacts.Application;
 using PhoneBook.Contacts.Infrastructure;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, config) =>
+    config.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -25,6 +29,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
 {
