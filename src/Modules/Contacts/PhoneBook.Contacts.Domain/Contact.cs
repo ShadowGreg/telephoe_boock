@@ -1,35 +1,31 @@
-﻿namespace PhoneBook.Contacts.Domain;
-
-public sealed class Contact
-{
+namespace PhoneBook.Contacts.Domain;
+public sealed class Contact {
     public Guid Id { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Phone { get; private set; } = string.Empty;
     public string? Email { get; private set; }
     public string? Notes { get; private set; }
-    public DateTimeOffset CreatedAt { get; private set; }
-    public DateTimeOffset UpdatedAt { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
 
     private Contact() { }
 
-    public static Contact Create(string name, string phone, string? email, string? notes)
-    {
+    public static Contact Create(string name, string phone, string? email, string? notes) {
         Validate(name, phone, email);
 
-        var now = DateTimeOffset.UtcNow;
-        return new Contact
-        {
-            Id = Guid.NewGuid(),
-            Name = name.Trim(),
-            Phone = phone.Trim(),
-            Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
-            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(),
-            CreatedAt = now,
-            UpdatedAt = now
-        };
+        var now = DateTime.UtcNow;
+        return new Contact {
+                               Id = Guid.NewGuid(),
+                               Name = name.Trim(),
+                               Phone = phone.Trim(),
+                               Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
+                               Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim(),
+                               CreatedAt = now,
+                               UpdatedAt = now
+                           };
     }
 
-    public void Update(string name, string phone, string? email, string? notes)
+    public void Update(string name, string phone, string? email, string? notes) 
     {
         Validate(name, phone, email);
 
@@ -37,18 +33,16 @@ public sealed class Contact
         Phone = phone.Trim();
         Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
         Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
-        UpdatedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 
-    private static void Validate(string name, string phone, string? email)
-    {
+    private static void Validate(string name, string phone, string? email) {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name is required.", nameof(name));
 
         if (string.IsNullOrWhiteSpace(phone))
             throw new ArgumentException("Phone is required.", nameof(phone));
 
-        // очень базовая проверка
         if (phone.Length < 3)
             throw new ArgumentException("Phone is too short.", nameof(phone));
 

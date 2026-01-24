@@ -1,4 +1,4 @@
-﻿namespace PhoneBook.Contacts.Application;
+﻿namespace PhoneBook.Contacts.Domain;
 
 public sealed record ContactDto(
     Guid Id,

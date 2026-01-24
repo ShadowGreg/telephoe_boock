@@ -16,9 +16,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(options);
         services.AddSingleton<IContactsRepository, JsonFileContactsRepository>();
 
-        // Application сервис
-        services.AddSingleton<IContactsRepository>();
-
         return services;
     }
 }

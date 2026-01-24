@@ -12,8 +12,6 @@ public sealed class JsonFileContactsRepository : IContactsRepository
     };
 
     private readonly ContactsFileStoreOptions _options;
-
-    // Синхронизация внутри процесса
     private readonly SemaphoreSlim _gate = new(1, 1);
 
     public JsonFileContactsRepository(ContactsFileStoreOptions options)
@@ -123,7 +121,6 @@ public sealed class JsonFileContactsRepository : IContactsRepository
     {
         EnsureDirectory();
 
-        // атомарная запись: пишем во временный файл, потом replace
         var dir = Path.GetDirectoryName(Path.GetFullPath(_options.FilePath))!;
         var tmp = Path.Combine(dir, $"{Path.GetFileName(_options.FilePath)}.{Guid.NewGuid():N}.tmp");
 
@@ -139,7 +136,6 @@ public sealed class JsonFileContactsRepository : IContactsRepository
 
         if (File.Exists(_options.FilePath))
         {
-            // Replace: атомарно на большинстве FS
             File.Replace(tmp, _options.FilePath, destinationBackupFileName: null);
         }
         else

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PhoneBook.Contacts.Application;
+using PhoneBook.Contacts.Domain;
 
 namespace PhoneBook.Api;
 public static class ContactsEndpoints {
@@ -10,7 +11,6 @@ public static class ContactsEndpoints {
                        .WithTags("Contacts")
                        .WithOpenApi();
 
-        // GET /api/contacts?q=
         group.MapGet(
                   "/",
                   async Task<Ok<IReadOnlyList<ContactDto>>> (
@@ -26,7 +26,6 @@ public static class ContactsEndpoints {
              .WithDescription("Возвращает список контактов с возможностью поиска по имени, телефону или email")
              .Produces<IReadOnlyList<ContactDto>>(StatusCodes.Status200OK);
 
-        // GET /api/contacts/{id}
         group.MapGet(
                   "/{id:guid}",
                   async Task<Results<Ok<ContactDto>, NotFound>> (
@@ -45,7 +44,6 @@ public static class ContactsEndpoints {
              .Produces<ContactDto>(StatusCodes.Status200OK)
              .Produces(StatusCodes.Status404NotFound);
 
-        // POST /api/contacts
         group.MapPost(
                   "/",
                   async Task<Results<Created<ContactDto>, BadRequest<ProblemDetails>>> (
@@ -74,7 +72,6 @@ public static class ContactsEndpoints {
              .Produces<ContactDto>(StatusCodes.Status201Created)
              .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
 
-        // PUT /api/contacts/{id}
         group.MapPut(
                   "/{id:guid}",
                   async Task<Results<Ok<ContactDto>, NotFound, BadRequest<ProblemDetails>>> (
@@ -105,7 +102,6 @@ public static class ContactsEndpoints {
              .Produces(StatusCodes.Status404NotFound)
              .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
 
-        // DELETE /api/contacts/{id}
         group.MapDelete(
                   "/{id:guid}",
                   async Task<Results<NoContent, NotFound>> (
