@@ -11,6 +11,8 @@ public sealed class JsonFileContactsRepository : IContactsRepository
         WriteIndented = true
     };
 
+    private sealed record ContactRow(Guid Id, string Name, string Phone, string? Email, string? Notes, DateTime CreatedAt, DateTime UpdatedAt);
+
     private readonly ContactsFileStoreOptions _options;
     private readonly SemaphoreSlim _gate = new(1, 1);
 
@@ -113,8 +115,13 @@ public sealed class JsonFileContactsRepository : IContactsRepository
         if (stream.Length == 0)
             return Array.Empty<Contact>();
 
-        var data = await JsonSerializer.DeserializeAsync<List<Contact>>(stream, JsonOptions, ct);
-        return (IReadOnlyList<Contact>)data ?? Array.Empty<Contact>();
+        var data = await JsonSerializer.DeserializeAsync<List<ContactRow>>(stream, JsonOptions, ct);
+        if (data is null)
+            return Array.Empty<Contact>();
+
+        return data
+            .Select(r => Contact.FromPersistence(r.Id, r.Name, r.Phone, r.Email, r.Notes, r.CreatedAt, r.UpdatedAt))
+            .ToList();
     }
 
     private async Task WriteAllUnsafeAsync(List<Contact> contacts, CancellationToken ct)

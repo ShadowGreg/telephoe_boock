@@ -25,6 +25,17 @@ public sealed class Contact {
                            };
     }
 
+    public static Contact FromPersistence(Guid id, string name, string phone, string? email, string? notes, DateTime createdAt, DateTime updatedAt) =>
+        new() {
+            Id = id,
+            Name = name ?? string.Empty,
+            Phone = phone ?? string.Empty,
+            Email = string.IsNullOrWhiteSpace(email) ? null : email!.Trim(),
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes!.Trim(),
+            CreatedAt = createdAt,
+            UpdatedAt = updatedAt
+        };
+
     public void Update(string name, string phone, string? email, string? notes) 
     {
         Validate(name, phone, email);

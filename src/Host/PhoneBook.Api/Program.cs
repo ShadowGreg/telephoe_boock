@@ -1,10 +1,14 @@
 using Microsoft.OpenApi.Models;
 using PhoneBook.Api;
+using PhoneBook.Contacts.Application;
+using PhoneBook.Contacts.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddContactsInfrastructure(builder.Configuration);
+builder.Services.AddScoped<ContactsService>();
 builder.Services.AddSwaggerGen(options =>
     {
         options.SwaggerDoc("v1", new OpenApiInfo
