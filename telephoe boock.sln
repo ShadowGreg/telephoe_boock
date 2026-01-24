@@ -19,6 +19,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "local", "local", "{906C0A29-7EB0-47D3-9CFB-CEF1E4FD38EB}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
+		global.json = global.json
+		telephoe boock.sln.DotSettings.user = telephoe boock.sln.DotSettings.user
+		proxy\nginx.conf = proxy\nginx.conf
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B1A1E8F1-1B2C-4D5E-9F0A-1B2C3D4E5F6A}"
