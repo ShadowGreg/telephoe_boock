@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using PhoneBook.Contacts.Application;
 using PhoneBook.Contacts.Domain;
@@ -9,13 +10,14 @@ namespace PhoneBook.Contacts.Tests.Unit;
 public class ContactsServiceTests
 {
     private readonly IContactsRepository _repo = Substitute.For<IContactsRepository>();
+    private readonly ILogger<ContactsService> _logger = Substitute.For<ILogger<ContactsService>>();
 
     [Fact]
     public async Task GetAllAsync_ReturnsEmpty_WhenRepoEmpty()
     {
         _repo.GetAllAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<Contact>());
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetAllAsync(null, default);
 
         result.Should().BeEmpty();
@@ -28,7 +30,7 @@ public class ContactsServiceTests
         var b = Contact.Create("Boris", "456", null, null);
         _repo.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new[] { b, a });
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetAllAsync(null, default);
 
         result.Should().HaveCount(2);
@@ -43,7 +45,7 @@ public class ContactsServiceTests
         var b = Contact.Create("Boris", "456", null, null);
         _repo.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new[] { a, b });
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetAllAsync("ann", default);
 
         result.Should().ContainSingle().Which.Name.Should().Be("Anna");
@@ -55,7 +57,7 @@ public class ContactsServiceTests
         var c = Contact.Create("Ivan", "+79001234567", null, null);
         _repo.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new[] { c });
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetAllAsync("234", default);
 
         result.Should().ContainSingle().Which.Phone.Should().Be("+79001234567");
@@ -67,7 +69,7 @@ public class ContactsServiceTests
         var c = Contact.Create("Ivan", "123", "ivan@mail.ru", null);
         _repo.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new[] { c });
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetAllAsync("mail", default);
 
         result.Should().ContainSingle().Which.Email.Should().Be("ivan@mail.ru");
@@ -78,7 +80,7 @@ public class ContactsServiceTests
     {
         _repo.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((Contact?)null);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetByIdAsync(Guid.NewGuid(), default);
 
         result.Should().BeNull();
@@ -90,7 +92,7 @@ public class ContactsServiceTests
         var c = Contact.Create("Ivan", "+79001", "i@m.ru", "n");
         _repo.GetByIdAsync(c.Id, Arg.Any<CancellationToken>()).Returns(c);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.GetByIdAsync(c.Id, default);
 
         result.Should().NotBeNull();
@@ -105,7 +107,7 @@ public class ContactsServiceTests
     {
         _repo.AddAsync(Arg.Any<Contact>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var req = new CreateContactRequest("Ivan", "+79001234567", "i@m.ru", "note");
         var result = await svc.CreateAsync(req, default);
 
@@ -121,7 +123,7 @@ public class ContactsServiceTests
     [Fact]
     public async Task CreateAsync_WithInvalidData_Throws()
     {
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var req = new CreateContactRequest("", "+79001", null, null);
 
         var act = () => svc.CreateAsync(req, default);
@@ -135,7 +137,7 @@ public class ContactsServiceTests
     {
         _repo.GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((Contact?)null);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var req = new UpdateContactRequest("Ivan", "+79001", null, null);
         var result = await svc.UpdateAsync(Guid.NewGuid(), req, default);
 
@@ -150,7 +152,7 @@ public class ContactsServiceTests
         _repo.GetByIdAsync(c.Id, Arg.Any<CancellationToken>()).Returns(c);
         _repo.UpdateAsync(Arg.Any<Contact>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var req = new UpdateContactRequest("Petr", "+79002", "p@m.ru", "n2");
         var result = await svc.UpdateAsync(c.Id, req, default);
 
@@ -168,7 +170,7 @@ public class ContactsServiceTests
     {
         _repo.DeleteAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(false);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.DeleteAsync(Guid.NewGuid(), default);
 
         result.Should().BeFalse();
@@ -179,7 +181,7 @@ public class ContactsServiceTests
     {
         _repo.DeleteAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(true);
 
-        var svc = new ContactsService(_repo);
+        var svc = new ContactsService(_repo, _logger);
         var result = await svc.DeleteAsync(Guid.NewGuid(), default);
 
         result.Should().BeTrue();

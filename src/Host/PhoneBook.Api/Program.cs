@@ -30,19 +30,35 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-app.MigrateContactsDb();
+// Add startup logging
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Starting PhoneBook API...");
+logger.LogInformation("Environment: {Environment}", app.Environment.EnvironmentName);
+logger.LogInformation("Configuration sources: {Sources}", 
+    string.Join(", ", builder.Configuration.Sources.Select(s => s.GetType().Name)));
+
+try 
+{
+    logger.LogInformation("Running database migrations...");
+    app.MigrateContactsDb();
+    logger.LogInformation("Database migrations completed successfully");
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "Failed to run database migrations");
+}
 
 app.UseSerilogRequestLogging();
 
-if (app.Environment.IsDevelopment())
+// Enable Swagger for both Development and Production
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
-            options.RoutePrefix = "swagger";
-        });
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "PhoneBook API v1");
+    options.RoutePrefix = "swagger";
+});
+
+logger.LogInformation("Mapping contacts module...");
 app.MapContactsModule();
 
 

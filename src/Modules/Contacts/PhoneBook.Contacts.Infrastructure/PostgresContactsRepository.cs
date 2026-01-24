@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PhoneBook.Contacts.Application;
 using PhoneBook.Contacts.Domain;
 using PhoneBook.Contacts.Infrastructure.Persistence;
@@ -8,13 +9,30 @@ namespace PhoneBook.Contacts.Infrastructure;
 public sealed class PostgresContactsRepository : IContactsRepository
 {
     private readonly ContactsDbContext _db;
+    private readonly ILogger<PostgresContactsRepository> _logger;
 
-    public PostgresContactsRepository(ContactsDbContext db) => _db = db;
+    public PostgresContactsRepository(ContactsDbContext db, ILogger<PostgresContactsRepository> logger)
+    {
+        _db = db;
+        _logger = logger;
+    }
 
     public async Task<IReadOnlyList<Contact>> GetAllAsync(CancellationToken ct)
     {
-        var list = await _db.Contacts.OrderBy(x => x.Name).ToListAsync(ct);
-        return list.Select(ToDomain).ToList();
+        _logger.LogInformation("Getting all contacts from PostgreSQL database");
+        
+        try
+        {
+            _logger.LogDebug("Executing query to get all contacts ordered by name");
+            var list = await _db.Contacts.OrderBy(x => x.Name).ToListAsync(ct);
+            _logger.LogInformation("Successfully retrieved {Count} contacts from database", list.Count);
+            return list.Select(ToDomain).ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving contacts from PostgreSQL database");
+            throw;
+        }
     }
 
     public async Task<Contact?> GetByIdAsync(Guid id, CancellationToken ct)

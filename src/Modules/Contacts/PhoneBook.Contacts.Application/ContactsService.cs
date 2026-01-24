@@ -1,31 +1,51 @@
-﻿using PhoneBook.Contacts.Domain;
+using Microsoft.Extensions.Logging;
+using PhoneBook.Contacts.Domain;
 
 namespace PhoneBook.Contacts.Application;
 
 public sealed class ContactsService
 {
     private readonly IContactsRepository _repo;
+    private readonly ILogger<ContactsService> _logger;
 
-    public ContactsService(IContactsRepository repo) => _repo = repo;
+    public ContactsService(IContactsRepository repo, ILogger<ContactsService> logger)
+    {
+        _repo = repo;
+        _logger = logger;
+    }
 
     public async Task<IReadOnlyList<ContactDto>> GetAllAsync(string? q, CancellationToken ct)
     {
-        var all = await _repo.GetAllAsync(ct);
-
-        IEnumerable<Contact> filtered = all;
-        if (!string.IsNullOrWhiteSpace(q))
+        _logger.LogInformation("Getting all contacts with query: '{Query}'", q ?? "(empty)");
+        
+        try
         {
-            var query = q.Trim();
-            filtered = filtered.Where(x =>
-                x.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                x.Phone.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                (x.Email?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false));
-        }
+            var all = await _repo.GetAllAsync(ct);
+            _logger.LogInformation("Retrieved {Count} contacts from repository", all.Count);
 
-        return filtered
-              .OrderBy(x => x.Name)
-              .Select(ToDto)
-              .ToList();
+            IEnumerable<Contact> filtered = all;
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var query = q.Trim();
+                filtered = filtered.Where(x =>
+                    x.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    x.Phone.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    (x.Email?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false));
+            }
+
+            var result = filtered
+                  .OrderBy(x => x.Name)
+                  .Select(ToDto)
+                  .ToList();
+            
+            _logger.LogInformation("Returning {Count} filtered contacts", result.Count);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting contacts with query: '{Query}'", q ?? "(empty)");
+            throw;
+        }
     }
 
     public async Task<ContactDto?> GetByIdAsync(Guid id, CancellationToken ct)
