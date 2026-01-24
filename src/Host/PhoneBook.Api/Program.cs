@@ -30,6 +30,8 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.MigrateContactsDb();
+
 app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
